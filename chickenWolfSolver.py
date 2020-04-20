@@ -380,7 +380,7 @@ def aStarSolver(initialStateFile, goalStateFile):
 
         # if node is goal state, terminate
         if game.checkWin():
-            return parents, explored, game.expanded
+            return explored, parents, game.expanded
 
         # expand frontier
         game.expanded += 1
@@ -435,65 +435,29 @@ def main():
     path = []
     if sys.argv[3] == "bfs":
         explored, parents, expanded = bfsSolver(sys.argv[1], sys.argv[2])
-        path = getPath(explored, parents)
-
-        if explored == False:
-            print("number of expanded nodes", expanded)
-            print("Could not find a solution")
-        else:
-            outFile = open(sys.argv[4], "w+")
-            for s in path:
-                print(explored[s])
-                outFile.write(str(explored[s]) + "\n")
-            outFile.close()
-            print("number of expanded nodes", expanded)
 
     if sys.argv[3] == "dfs":
         explored, parents, expanded = dfsSolver(sys.argv[1], sys.argv[2])
-        path = getPath(explored, parents)
-
-        if explored == False:
-            print("number of expanded nodes", expanded)
-            print("Could not find a solution")
-        else:
-            outFile = open(sys.argv[4], "w+")
-            for s in path:
-                print(explored[s])
-                outFile.write(str(explored[s]) + "\n")
-            outFile.close()
-            print("number of expanded nodes", expanded)
 
     if sys.argv[3] == "iddfs":
         explored, parents, expanded = iddfsSolver(sys.argv[1], sys.argv[2])
-        path = getPath(explored, parents)
-
-        if explored == False:
-            print("number of expanded nodes", expanded)
-            print("Could not find a solution")
-        else:
-            outFile = open(sys.argv[4], "w+")
-            for s in path:
-                print(explored[s])
-                outFile.write(str(explored[s]) + "\n")
-            outFile.close()
-            print("number of expanded nodes", expanded)
 
     if sys.argv[3] == "astar":
-        parents, explored, expanded = aStarSolver(sys.argv[1], sys.argv[2])
+        explored, parents, expanded = aStarSolver(sys.argv[1], sys.argv[2])
 
-        path = getPath(explored, parents)
+    path = getPath(explored, parents)
 
-        if explored == False:
-            print("number of expanded nodes", expanded)
-            print("Could not find a solution")
-        else:
-            outFile = open(sys.argv[4], "w+")
-            
-            for s in path:
-                print(explored[s])
-                outFile.write(str(explored[s]) + "\n")
-            outFile.close()
-            print("number of expanded nodes", expanded)
+    if explored == False:
+        print("number of expanded nodes", expanded)
+        print("Could not find a solution")
+    else:
+        outFile = open(sys.argv[4], "w+")
+        
+        for s in path:
+            print(explored[s])
+            outFile.write(str(explored[s]) + "\n")
+        outFile.close()
+        print("number of expanded nodes", expanded)
 
 if __name__ == "__main__":
     main()
