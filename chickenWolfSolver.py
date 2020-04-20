@@ -245,7 +245,7 @@ def bfsSolver(initialStateFile, goalStateFile):
     while(1):
         # if frontier is empty, we couldn't find goal
         if len(frontier) == 0:
-            return False, False, game.expanded
+            return False, False, game
         
         # dequeue from frontier
         current = frontier.popleft()
@@ -254,7 +254,7 @@ def bfsSolver(initialStateFile, goalStateFile):
 
         # if current state is a win, return
         if game.checkWin():
-            return explored, parents, game.expanded
+            return explored, parents, game
         
         # expand current state
         game.expanded += 1
@@ -280,7 +280,7 @@ def dfsSolver(initialStateFile, goalStateFile):
 
     while(1):
         if len(frontier) == 0:
-                return False
+                return False, False, game
 
         # get highest priority node in frontier
         child = frontier.pop()
@@ -288,7 +288,7 @@ def dfsSolver(initialStateFile, goalStateFile):
 
         # if node is goal state, terminate
         if game.checkWin():
-            return explored, parents, game.expanded
+            return explored, parents, game
 
         # expand frontier
         game.expanded += 1
@@ -323,13 +323,13 @@ def iddfsSolver(initialStateFile, goalStateFile):
         # update total expanded nodes
         totalExpanded += game.expanded
         if result:
-            return explored, parents, totalExpanded
+            return explored, parents, game
 
     return False, False, totalExpanded
 
 def iddfsHelper(game, depth, maxDepth, explored, frontier, parents):
     while (1):
-        if depth >= maxDepth:
+        if depth > maxDepth:
                 return False
 
         # get highest priority node in frontier
@@ -362,16 +362,15 @@ def aStarSolver(initialStateFile, goalStateFile):
     parents = {}
     parents[0] = None
     pFrontier = PriorityQueue()
-    frontier = [] #keep two frontiers so that I can actually see what is inside them
-
     # initialize frontiers
+    # keep two frontiers so that I can actually see what is inside them
+    frontier = [game.getCurrentState()]
     pFrontier.put(game.getCurrentState(), 0)
-    frontier.append(game.getCurrentState())
 
     while (1):
         # if frontier is empty, terminate
         if pFrontier.empty():
-            return False, False, game.expanded
+            return False, False, game
         
         # get highest priority node in frontier
         child = pFrontier.get()
@@ -380,7 +379,7 @@ def aStarSolver(initialStateFile, goalStateFile):
 
         # if node is goal state, terminate
         if game.checkWin():
-            return explored, parents, game.expanded
+            return explored, parents, game
 
         # expand frontier
         game.expanded += 1
@@ -418,8 +417,8 @@ def aStarGn(game, nextState):
 
     return math.sqrt(Gn)
 
-def getPath(explored, parents):
-    goalId = len(explored) - 1
+def getPath(explored, parents, game):
+    goalId = explored.index(game.goalState)
     goalState = explored[goalId]
     finalPath = deque([goalId])
     while finalPath[0]:
@@ -431,33 +430,32 @@ def getPath(explored, parents):
     return finalPath
 
 def main():
-    parents, explored, expanded = 0, 0, 0
+    parents, explored, game = 0, 0, 0
     path = []
     if sys.argv[3] == "bfs":
-        explored, parents, expanded = bfsSolver(sys.argv[1], sys.argv[2])
+        explored, parents, game = bfsSolver(sys.argv[1], sys.argv[2])
 
     if sys.argv[3] == "dfs":
-        explored, parents, expanded = dfsSolver(sys.argv[1], sys.argv[2])
+        explored, parents, game = dfsSolver(sys.argv[1], sys.argv[2])
 
     if sys.argv[3] == "iddfs":
-        explored, parents, expanded = iddfsSolver(sys.argv[1], sys.argv[2])
+        explored, parents, game = iddfsSolver(sys.argv[1], sys.argv[2])
 
     if sys.argv[3] == "astar":
-        explored, parents, expanded = aStarSolver(sys.argv[1], sys.argv[2])
-
-    path = getPath(explored, parents)
+        explored, parents, game = aStarSolver(sys.argv[1], sys.argv[2])
 
     if explored == False:
-        print("number of expanded nodes", expanded)
+        print("number of expanded nodes", game.expanded)
         print("Could not find a solution")
     else:
+        path = getPath(explored, parents, game)
         outFile = open(sys.argv[4], "w+")
         
         for s in path:
             print(explored[s])
             outFile.write(str(explored[s]) + "\n")
         outFile.close()
-        print("number of expanded nodes", expanded)
+        print("number of expanded nodes", game.expanded)
 
 if __name__ == "__main__":
     main()

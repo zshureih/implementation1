@@ -1,0 +1,5 @@
+Zeyad Shureih
+CS 331 - Implementation Assignment 1
+
+To run chickenWolfSolver.py:
+    python3 chickenWolfSolver.py {startFile} {goalFile} {algorithm} {outputFile}
