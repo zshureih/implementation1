@@ -272,35 +272,34 @@ def dfsSolver(initialStateFile, goalStateFile):
     game = Game(goalState, initState)
 
     #initialize search problem
-    explored = []
+    game = Game(goalState, initState)
+    explored = [game.getCurrentState()]
+    parents = {}
+    parents[0] = None
+    frontier = [game.getCurrentState()]
 
-    return dfsHelper(game, explored)
+    while(1):
+        if len(frontier) == 0:
+                return False
 
-def dfsHelper(game, explored):
-    # get current state()
-    currentState = game.getCurrentState()
+        # get highest priority node in frontier
+        child = frontier.pop()
+        game.setCurrentState(child)
 
-    # if we win, return
-    if game.checkWin():
-        # explored = explored + frontier
-        explored.append(currentState)
-        return explored, game.expanded
-    
-    #expland current state
-    game.expanded += 1
-    successors = game.getFrontier()
-    # add novel states to frontier
-    for s in successors:
-        if  not s in explored:
-            game.setCurrentState(s)
-            e = explored.copy()
-            e.append(currentState)
-            r1, r2 = dfsHelper(game, e)
-            if r1:
-                return r1, r2
-            game.undo()
-    
-    return False, game.expanded
+        # if node is goal state, terminate
+        if game.checkWin():
+            return explored, parents, game.expanded
+
+        # expand frontier
+        game.expanded += 1
+        successors = game.getFrontier()
+
+        # add novel states to frontier with priority f(n)
+        for s in successors:
+            if not s in frontier and not s in explored:
+                frontier.append(s)
+                explored.append(s)
+                parents[len(parents)] = game.getCurrentState()
 
 def iddfsSolver(initialStateFile, goalStateFile):
     # initialize game
@@ -352,36 +351,6 @@ def iddfsHelper(game, depth, maxDepth, explored, frontier, parents):
                 frontier.append(s)
                 explored.append(s)
                 parents[len(parents)] = game.getCurrentState()
-
-
-    # if depth > maxDepth:
-    #     return False
-        
-    # # get current state()
-    # currentState = frontier.pop()
-
-    # # if we win, return
-    # if game.checkWin():
-    #     # explored = explored + frontier
-    #     explored.append(currentState)
-    #     return explored
-
-    # #expland current state
-    # game.expanded += 1
-    # successors = game.getFrontier()
-
-    # # add novel states to frontier
-    # depth += 1
-    # for s in successors:
-    #     if not s in explored:
-    #         game.setCurrentState(s)
-    #         e = explored.copy()
-    #         e.append(currentState)
-    #         r1 = iddfsHelper(game, depth, maxDepth, e)
-    #         if r1:
-    #             return r1
-    #         game.undo()
-
 
 def aStarSolver(initialStateFile, goalStateFile):
     # init game
@@ -480,16 +449,17 @@ def main():
             print("number of expanded nodes", expanded)
 
     if sys.argv[3] == "dfs":
-        explored, expanded = dfsSolver(sys.argv[1], sys.argv[2])
+        explored, parents, expanded = dfsSolver(sys.argv[1], sys.argv[2])
+        path = getPath(explored, parents)
 
         if explored == False:
             print("number of expanded nodes", expanded)
             print("Could not find a solution")
         else:
             outFile = open(sys.argv[4], "w+")
-            for s in explored:
-                print(s)
-                outFile.write(str(s) + "\n")
+            for s in path:
+                print(explored[s])
+                outFile.write(str(explored[s]) + "\n")
             outFile.close()
             print("number of expanded nodes", expanded)
 
